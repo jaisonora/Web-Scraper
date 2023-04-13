@@ -1,0 +1,43 @@
+from selenium import webdriver
+from selenium.webdriver.common.keys import Keys
+from selenium.webdriver.chrome.service import Service
+from webdriver_manager.chrome import ChromeDriverManager
+from bs4 import BeautifulSoup
+import time
+
+# Keyword to search for
+keyword = "laptop"
+
+# Start the Selenium service and open the web driver
+s = Service(ChromeDriverManager().install())
+driver = webdriver.Chrome(service=s)
+
+# Open the website and search for the keyword
+driver.get("https://www.examplewebsite.com")
+search_box = driver.find_element_by_id("twotabsearchtextbox")
+
+#Insert your keyword inside Parenthesis
+search_box.send_keys(keyword)
+search_box.send_keys(Keys.RETURN)
+
+# Wait for the page to load and retrieve the HTML source
+time.sleep(5) # You may need to adjust this value depending on your internet speed
+html = driver.page_source
+
+# Parse the HTML source using BeautifulSoup
+soup = BeautifulSoup(html, "html.parser")
+
+# Find all the products on the page
+products = soup.find_all("div", {"class": "s-result-item"})
+
+# Print the product details
+for product in products:
+    try:
+        product_name = product.find("h2", {"class": "a-size-mini"}).text.strip()
+        product_price = product.find("span", {"class": "a-offscreen"}).text.strip()
+        print(f"{product_name} - {product_price}")
+    except:
+        pass
+
+# Close the web driver
+driver.quit()
